@@ -1,0 +1,62 @@
+export const MEDICINE_TYPES = [
+  { value: "tablet", label: "Tablet" },
+  { value: "capsule", label: "Capsule" },
+  { value: "injection", label: "Injection" },
+  { value: "syrup", label: "Syrup" },
+  { value: "drops", label: "Drops" },
+  { value: "cream", label: "Cream" },
+  { value: "ointment", label: "Ointment" },
+]
+
+export const DOSAGE_UNITS = [
+  { value: "mg", label: "mg" },
+  { value: "g", label: "g" },
+  { value: "ml", label: "ml" },
+  { value: "mcg", label: "mcg" },
+  { value: "IU", label: "IU" },
+]
+
+export const COMMON_MEDICINES = [
+  "Paracetamol",
+  "Ibuprofen",
+  "Aspirin",
+  "Amoxicillin",
+  "Ciprofloxacin",
+  "Metformin",
+  "Amlodipine",
+  "Atorvastatin",
+  "Omeprazole",
+  "Losartan",
+  "Furosemide",
+  "Spironolactone",
+  "Tamsulosin",
+  "Finasteride",
+  "Doxazosin",
+  "Sildenafil",
+  "Tadalafil",
+  "Prednisolone",
+  "Dexamethasone",
+  "Insulin",
+  "Glimepiride",
+  "Gliclazide",
+  "Ramipril",
+  "Bisoprolol",
+  "Warfarin",
+  "Clopidogrel",
+  "Simvastatin",
+  "Rosuvastatin",
+  "Pantoprazole",
+  "Ranitidine",
+]
+
+export const DOSAGE_PATTERNS = [
+  { value: "1+0+0", label: "1+0+0 (Morning only)" },
+  { value: "0+0+1", label: "0+0+1 (Evening only)" },
+  { value: "1+0+1", label: "1+0+1 (Morning & Evening)" },
+  { value: "1+1+1", label: "1+1+1 (Three times daily)" },
+  { value: "2+0+0", label: "2+0+0 (2 Morning)" },
+  { value: "0+0+2", label: "0+0+2 (2 Evening)" },
+  { value: "2+0+2", label: "2+0+2 (2 Morning & 2 Evening)" },
+  { value: "1+1+0", label: "1+1+0 (Morning & Afternoon)" },
+  { value: "0+1+1", label: "0+1+1 (Afternoon & Evening)" },
+]
