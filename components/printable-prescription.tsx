@@ -10,11 +10,9 @@ interface PrintablePrescriptionProps {
 
 export default function PrintablePrescription({ prescription, medicines }: PrintablePrescriptionProps) {
   useEffect(() => {
-    // Auto-print when component loads
     const timer = setTimeout(() => {
       window.print()
     }, 1000)
-
     return () => clearTimeout(timer)
   }, [])
 
@@ -32,125 +30,100 @@ export default function PrintablePrescription({ prescription, medicines }: Print
   }
 
   return (
-    <div className="min-h-screen bg-white p-8 print:p-0">
+    <div
+      className="min-h-screen bg-white p-10 print:p-0"
+      style={{
+        backgroundImage: `url('/prescription-bg.jpeg')`,
+        backgroundRepeat: "no-repeat",
+        backgroundPosition: "center top",
+        backgroundSize: "cover"
+      }}
+    >
       <style jsx global>{`
         @media print {
           body { margin: 0; }
           .no-print { display: none; }
         }
+        .field-line {
+          border-bottom: 1px solid #444;
+          flex: 1;
+          padding: 0 6px;
+          min-height: 18px;
+        }
       `}</style>
 
       {/* Header */}
-      <div className="text-center mb-8 border-b-2 border-blue-600 pb-4">
-        <div className="flex justify-between items-start">
-          <div className="text-left">
-            <h1 className="text-xl font-bold text-blue-800">P-Associate Professor</h1>
-            <h2 className="text-2xl font-bold text-blue-900">Dr. Tanveer-ul-Haq</h2>
-            <p className="text-sm">M.B.B.S., F.C.P.S.</p>
-            <p className="text-sm">Senior Consultant</p>
-            <p className="text-sm">Head of Urology Department</p>
-            <p className="text-sm">Multan Institute of Kidney Diseases</p>
-            <p className="text-sm">PHC Reg No 26970</p>
-          </div>
+      <div className="flex justify-between mb-6">
+        {/* Left English */}
+        <div className="text-left leading-tight">
+          <div className="text-sm font-semibold">P-Associate Professor p</div>
+          <div className="text-lg font-bold text-blue-900">Dr. Tanveer-ul-Haq</div>
+          <div className="text-xs">M.B.B.S., F.C.P.S.</div>
+          <div className="text-xs">Senior Consultant</div>
+          <div className="text-xs">Head of Urology Department</div>
+          <div className="text-xs">Multan Institute of Kidney Diseases</div>
+          <div className="text-xs">PHC Reg No: 26970</div>
+        </div>
 
-          <div className="text-center">
-            <div className="w-20 h-20 border-2 border-blue-600 rounded-full flex items-center justify-center mb-2">
-              <div className="text-blue-600 font-bold text-xs">UROCARE</div>
-            </div>
-          </div>
-
-          <div className="text-right text-blue-800">
-            <h3 className="text-xl font-bold">ڈاکٹر تنویر الحق</h3>
-            <p className="text-sm">ایم بی بی ایس، ایف سی پی ایس</p>
-            <p className="text-sm">سینئر کنسلٹنٹ</p>
-            <p className="text-sm">صدر شعبہ یورولوجی</p>
-            <p className="text-sm">ملتان انسٹی ٹیوٹ آف کڈنی ڈزیزز</p>
+        {/* Center Logo */}
+        <div className="flex flex-col items-center">
+          <div className="w-20 h-20 border-2 border-blue-700 rounded-full flex items-center justify-center text-xs font-bold text-blue-700">
+            UROCARE
           </div>
         </div>
+
+        {/* Right Urdu */}
+ 
       </div>
 
-      {/* Patient Information */}
-      <div className="grid grid-cols-2 gap-4 mb-6 text-sm">
+      {/* Patient Info */}
+      <div className="grid grid-cols-2 gap-6 text-xs mb-6">
         <div className="space-y-2">
-          <div className="flex">
-            <span className="font-semibold w-24">Ref. No:</span>
-            <span className="border-b border-gray-400 flex-1 px-2">{prescription.ref_no || ""}</span>
+          <div className="flex items-center"><span className="w-24 font-semibold">Ref No:</span><div className="field-line">{prescription.ref_no || ""}</div></div>
+          <div className="flex items-center"><span className="w-24 font-semibold">Patient Name:</span><div className="field-line">{prescription.patient_name}</div></div>
+          <div className="flex items-center">
+            <span className="w-24 font-semibold">Age:</span><div className="field-line w-16">{prescription.patient_age || ""}</div>
+            <span className="w-16 font-semibold ml-4">Sex:</span><div className="field-line w-16">{prescription.patient_sex || ""}</div>
           </div>
-          <div className="flex">
-            <span className="font-semibold w-24">Patient Name:</span>
-            <span className="border-b border-gray-400 flex-1 px-2">{prescription.patient_name}</span>
-          </div>
-          <div className="flex">
-            <span className="font-semibold w-24">Age:</span>
-            <span className="border-b border-gray-400 w-20 px-2">{prescription.patient_age || ""}</span>
-            <span className="font-semibold ml-4 w-16">Sex:</span>
-            <span className="border-b border-gray-400 w-20 px-2">{prescription.patient_sex || ""}</span>
-          </div>
-          <div className="flex">
-            <span className="font-semibold w-24">Address:</span>
-            <span className="border-b border-gray-400 flex-1 px-2">{prescription.patient_address || ""}</span>
-          </div>
+          <div className="flex items-center"><span className="w-24 font-semibold">Address:</span><div className="field-line">{prescription.patient_address || ""}</div></div>
         </div>
-
         <div className="space-y-2">
-          <div className="flex">
-            <span className="font-semibold w-20">Time:</span>
-            <span className="border-b border-gray-400 w-24 px-2"></span>
-            <span className="font-semibold ml-4 w-16">Date:</span>
-            <span className="border-b border-gray-400 w-24 px-2">{formatDate(prescription.created_at)}</span>
-            <span className="font-semibold ml-4">No of Visit:</span>
-            <span className="border-b border-gray-400 w-16 px-2">{prescription.visit_no || 1}</span>
+          <div className="flex items-center">
+            <span className="w-16 font-semibold">Time:</span><div className="field-line w-20"></div>
+            <span className="w-16 font-semibold ml-4">Date:</span><div className="field-line w-20">{formatDate(prescription.created_at)}</div>
+            <span className="w-20 font-semibold ml-4">No. of Visits:</span><div className="field-line w-12">{prescription.visit_no || 1}</div>
           </div>
-          <div className="flex">
-            <span className="font-semibold w-20">S/o, D/o, W/o:</span>
-            <span className="border-b border-gray-400 flex-1 px-2"></span>
+          <div className="flex items-center"><span className="w-20 font-semibold">S/o, D/o, W/o:</span><div className="field-line"></div></div>
+          <div className="flex items-center">
+            <span className="w-20 font-semibold">Weight:</span><div className="field-line w-20">{prescription.patient_weight || ""}</div>
+            <span className="w-24 font-semibold ml-4">Contact No:</span><div className="field-line">{prescription.patient_contact || ""}</div>
           </div>
-          <div className="flex">
-            <span className="font-semibold w-20">Weight (kg):</span>
-            <span className="border-b border-gray-400 w-24 px-2">{prescription.patient_weight || ""}</span>
-            <span className="font-semibold ml-4 w-20">Contact No:</span>
-            <span className="border-b border-gray-400 flex-1 px-2">{prescription.patient_contact || ""}</span>
-          </div>
-          <div className="flex">
-            <span className="font-semibold w-20">Allergies:</span>
-            <span className="border-b border-gray-400 flex-1 px-2">{prescription.allergies || ""}</span>
-          </div>
+          <div className="flex items-center"><span className="w-20 font-semibold">Allergies:</span><div className="field-line">{prescription.allergies || ""}</div></div>
         </div>
       </div>
 
-      {/* Clinical Information */}
-      <div className="grid grid-cols-2 gap-4 mb-6 text-sm">
-        <div>
-          <div className="flex mb-2">
-            <span className="font-semibold w-24">Symptoms:</span>
-            <span className="border-b border-gray-400 flex-1 px-2">{prescription.symptoms || ""}</span>
-          </div>
-        </div>
-        <div>
-          <div className="flex mb-2">
-            <span className="font-semibold w-20">Findings:</span>
-            <span className="border-b border-gray-400 flex-1 px-2">{prescription.findings || ""}</span>
-          </div>
-        </div>
+      {/* Clinical Info */}
+      <div className="grid grid-cols-2 gap-6 text-xs mb-6">
+        <div className="flex items-center"><span className="w-24 font-semibold">Symptoms:</span><div className="field-line">{prescription.symptoms || ""}</div></div>
+        <div className="flex items-center"><span className="w-20 font-semibold">Findings:</span><div className="field-line">{prescription.findings || ""}</div></div>
       </div>
 
-      <div className="mb-6 text-sm">
-        <div className="flex">
-          <span className="font-semibold w-32">Provisional/Diagnosis:</span>
-          <span className="border-b border-gray-400 flex-1 px-2">{prescription.diagnosis || ""}</span>
-        </div>
+      {/* Diagnosis */}
+      <div className="mb-6 text-xs flex items-center">
+        <span className="w-40 font-semibold">Provisional / Diagnosis:</span>
+        <div className="field-line">{prescription.diagnosis || ""}</div>
       </div>
 
-      {/* Prescription Medicines */}
+      {/* Medicines */}
       <div className="mb-8">
         <h3 className="font-bold text-lg mb-4">Rx</h3>
         <div className="space-y-4">
           {medicines.map((medicine, index) => (
             <div key={medicine.id || index} className="border-l-2 border-blue-600 pl-4">
-              <div className="font-semibold text-base">
+              <div className="font-semibold text-sm">
                 {index + 1}. {medicine.medicine_name} {medicine.dosage_amount} ({medicine.medicine_type})
               </div>
-              <div className="text-sm text-gray-700 ml-4">
+              <div className="text-xs text-gray-700 ml-4">
                 <div>Dosage: {getDosageText(medicine)}</div>
                 {medicine.duration_days && <div>Duration: {medicine.duration_days} days</div>}
                 {medicine.instructions && <div>Instructions: {medicine.instructions}</div>}
@@ -161,27 +134,27 @@ export default function PrintablePrescription({ prescription, medicines }: Print
       </div>
 
       {/* Footer */}
-      <div className="mt-12 pt-4 border-t-2 border-blue-600">
-        <div className="flex justify-between text-sm">
-          <div className="text-blue-800">
-            <p className="font-bold">حق میڈیکل سنٹر</p>
-            <p>Rescue 1122 کے سامنے، گلی نمبر 2، سیکٹر ایچ، ڈی ایچ اے ملتان</p>
-          </div>
-          <div className="text-blue-800 text-right">
-            <p>فون نمبر: آپ کے لیے 24 گھنٹے (آمین)</p>
-          </div>
+      {/* <div className="mt-12 pt-4 border-t-2 border-blue-600 flex justify-between text-xs text-blue-900">
+        <div>
+          <p className="font-bold">حق میڈیکل سنٹر / Haq Medical Center</p>
+          <p>Kidney Center - Urology & Nephrology Care</p>
+          <p>Rescue 1122 کے سامنے، گلی نمبر 2، سیکٹر ایچ، ڈی ایچ اے ملتان</p>
         </div>
-      </div>
+        <div className="text-right">
+          <p>فون: 24 گھنٹے دستیاب</p>
+          <p>دعا: اللہ آپ کو صحت و سلامتی عطا فرمائے۔ آمین</p>
+        </div>
+      </div> */}
 
-      {/* Print Button - Hidden in print */}
-      <div className="no-print fixed bottom-4 right-4">
+      {/* Print Button */}
+      {/* <div className="no-print fixed bottom-4 right-4">
         <button
           onClick={() => window.print()}
           className="bg-blue-600 text-white px-4 py-2 rounded shadow-lg hover:bg-blue-700"
         >
           Print Prescription
         </button>
-      </div>
+      </div> */}
     </div>
   )
 }

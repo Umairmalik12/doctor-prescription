@@ -11,7 +11,7 @@ import { COMMON_MEDICINES, MEDICINE_TYPES } from "@/lib/medicines-data"
 import { useToast } from "@/hooks/use-toast"
 import PrescriptionListModal from "./prescription-list-modal"
 
-interface MedicineFormData extends Omit<PrescriptionMedicine, "id" | "prescription_id"> {}
+interface MedicineFormData extends Omit<PrescriptionMedicine, "id" | "prescription_id"> { }
 
 export default function PrescriptionOverlayForm() {
   const { toast } = useToast()
@@ -49,8 +49,24 @@ export default function PrescriptionOverlayForm() {
   const [savedPrescriptionId, setSavedPrescriptionId] = useState<string | null>(null)
   // Hydration-safe date
   const [currentDate, setCurrentDate] = useState("")
+  const [currentTime, setCurrentTime] = useState("")
+
   useEffect(() => {
     setCurrentDate(new Date().toLocaleDateString())
+  }, [])
+
+  useEffect(() => {
+    // set date once
+    setCurrentDate(new Date().toLocaleDateString())
+
+    // update time every second
+    const interval = setInterval(() => {
+      setCurrentTime(
+        new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" })
+      )
+    }, 1000)
+
+    return () => clearInterval(interval)
   }, [])
 
   // Optimized handlers with useCallback to prevent re-renders
@@ -200,6 +216,15 @@ export default function PrescriptionOverlayForm() {
 
     const validMedicines = medicines.filter((med) => med.medicine_name.trim() !== "")
     const formatDate = () => new Date().toLocaleDateString()
+
+    const formateTime = () => {
+      return new Date().toLocaleTimeString([], {
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: true
+      });
+    };
+
     const getDosageText = (medicine: MedicineFormData) =>
       `${medicine.morning_dose}+${medicine.afternoon_dose}+${medicine.evening_dose}`
 
@@ -307,26 +332,32 @@ export default function PrescriptionOverlayForm() {
   </head>
   <body>
     <div class="prescription-container">
-      <img src="/prescription-form-bg.png" alt="Prescription Background" class="background-image" />
+      <img src="/prescription-bg.jpg" alt="Prescription Background" class="background-image" />
       <div class="content-overlay">
-        ${prescription.ref_no ? `<div class="print-text" style="top: 364px; left: 100px;">${prescription.ref_no}</div>` : ""}
-        <div class="print-text" style="top: 364px; left: 430px;">${formatDate()}</div>
-        <div class="print-text" style="top: 364px; left: 680px; width: 80px; text-align: center;">${prescription.visit_no || 1}</div>
-        ${prescription.patient_name ? `<div class="print-text" style="top: 404px; left: 140px;">${prescription.patient_name}</div>` : ""}
-        ${relationField ? `<div class="print-text" style="top: 404px; left: 480px;">${relationField}</div>` : ""}
-        ${prescription.patient_age ? `<div class="print-text" style="top: 444px; left: 60px;">${prescription.patient_age}</div>` : ""}
-        ${prescription.patient_sex ? `<div class="print-text" style="top: 444px; left: 180px;">${prescription.patient_sex}</div>` : ""}
-        ${prescription.patient_weight ? `<div class="print-text" style="top: 444px; left: 320px;">${prescription.patient_weight}</div>` : ""}
-        ${prescription.patient_contact ? `<div class="print-text" style="top: 444px; left: 550px;">${prescription.patient_contact}</div>` : ""}
-        ${prescription.patient_address ? `<div class="print-text" style="top: 484px; left: 90px; max-width: 320px;">${prescription.patient_address}</div>` : ""}
-        ${prescription.allergies ? `<div class="print-text" style="top: 484px; left: 480px; max-width: 270px;">${prescription.allergies}</div>` : ""}
-        ${prescription.symptoms ? `<div class="print-text" style="top: 524px; left: 100px; width: 300px;">${prescription.symptoms}</div>` : ""}
-        ${prescription.findings ? `<div class="print-text" style="top: 524px; left: 450px; width: 300px;">${prescription.findings}</div>` : ""}
-        ${prescription.diagnosis ? `<div class="print-text" style="top: 574px; left: 200px; width: 500px;">${prescription.diagnosis}</div>` : ""}
-        <div style="position: absolute; top: 620px; left: 50px; right: 50px;">
+        ${prescription.ref_no ? `<div class="print-text" style="top: 258px; left: 63px;">${prescription.ref_no}</div>` : ""}
+        <div class="print-text" style="top: 260px; left: 430px;">${formatDate()}</div>
+                <div class="print-text" style="top: 259px; left: 271px;">${formateTime()}</div>
+
+        
+        <div class="print-text" style="top: 254px; left: 632px; width: 80px; text-align: center;">${prescription.visit_no || 1}</div>
+        ${prescription.patient_name ? `<div class="print-text" style="top: 291px; left: 127px;">${prescription.patient_name}</div>` : ""}
+        ${relationField ? `<div class="print-text" style="top: 292px; left: 480px;">${relationField}</div>` : ""}
+        ${prescription.patient_age ? `<div class="print-text" style="top: 324px; left: 60px;">${prescription.patient_age}</div>` : ""}
+        ${prescription.patient_sex ? `<div class="print-text" style="top: 324px; left: 232px;">${prescription.patient_sex}</div>` : ""}
+        ${prescription.patient_weight ? `<div class="print-text" style="top: 325px; left: 414px;">${prescription.patient_weight}</div>` : ""}
+        ${prescription.patient_contact ? `<div class="print-text" style="top: 325px; left: 588px;">${prescription.patient_contact}</div>` : ""}
+        ${prescription.patient_address ? `<div class="print-text" style="top: 356px; left: 83px; max-width: 320px;">${prescription.patient_address}</div>` : ""}
+        ${prescription.allergies ? `<div class="print-text" style="top: 357px; left: 480px; max-width: 270px;">${prescription.allergies}</div>` : ""}
+        ${prescription.symptoms ? `<div class="print-text" style="top: 386px; left: 104px; width: 300px;">${prescription.symptoms}</div>` : ""}
+        ${prescription.findings ? `<div class="print-text" style="top: 389px; left: 474px; width: 300px;">${prescription.findings}</div>` : ""}
+        ${prescription.diagnosis ? `<div class="print-text" style="top: 421px; left: 193px; width: 500px;">${prescription.diagnosis}</div>` : ""}
+        <div style="position: absolute;
+    top: 477px;
+    left: 327px;
+    right: 50px;">
           ${validMedicines
-            .map(
-              (medicine, index) => `
+        .map(
+          (medicine, index) => `
             <div class="medicine-text">
               <span class="medicine-number">${index + 1}.</span>
               <span class="medicine-name">${medicine.medicine_name} ${medicine.dosage_amount} (${medicine.medicine_type})</span>
@@ -337,14 +368,14 @@ export default function PrescriptionOverlayForm() {
               </div>
             </div>
           `,
-            )
-            .join("")}
+        )
+        .join("")}
         </div>
       </div>
     </div>
     <script>
       setTimeout(function() {
-        window.print();
+        // window.print();
       }, 1000);
     </script>
   </body>
@@ -415,13 +446,14 @@ export default function PrescriptionOverlayForm() {
               ))}
             </SelectContent>
           </Select>
-
           <div className="flex items-center gap-1 bg-blue-50 p-2 rounded-lg border border-blue-200">
             <Input
               type="number"
               value={medicine.morning_dose}
-              onChange={(e) => updateMedicine(index, "morning_dose", Number.parseInt(e.target.value) || 0)}
-              className="w-8 h-6 text-xs text-center border border-blue-300 bg-white focus:border-blue-500 focus:ring-1 focus:ring-blue-200"
+              onChange={(e) =>
+                updateMedicine(index, "morning_dose", Number.parseInt(e.target.value) || 0)
+              }
+              className="w-12 h-7 text-xs text-center border border-blue-300 bg-white focus:border-blue-500 focus:ring-1 focus:ring-blue-200"
               min="0"
               max="9"
             />
@@ -429,8 +461,10 @@ export default function PrescriptionOverlayForm() {
             <Input
               type="number"
               value={medicine.afternoon_dose}
-              onChange={(e) => updateMedicine(index, "afternoon_dose", Number.parseInt(e.target.value) || 0)}
-              className="w-8 h-6 text-xs text-center border border-blue-300 bg-white focus:border-blue-500 focus:ring-1 focus:ring-blue-200"
+              onChange={(e) =>
+                updateMedicine(index, "afternoon_dose", Number.parseInt(e.target.value) || 0)
+              }
+              className="w-12 h-7 text-xs text-center border border-blue-300 bg-white focus:border-blue-500 focus:ring-1 focus:ring-blue-200"
               min="0"
               max="9"
             />
@@ -438,12 +472,15 @@ export default function PrescriptionOverlayForm() {
             <Input
               type="number"
               value={medicine.evening_dose}
-              onChange={(e) => updateMedicine(index, "evening_dose", Number.parseInt(e.target.value) || 0)}
-              className="w-8 h-6 text-xs text-center border border-blue-300 bg-white focus:border-blue-500 focus:ring-1 focus:ring-blue-200"
+              onChange={(e) =>
+                updateMedicine(index, "evening_dose", Number.parseInt(e.target.value) || 0)
+              }
+              className="w-12 h-7 text-xs text-center border border-blue-300 bg-white focus:border-blue-500 focus:ring-1 focus:ring-blue-200"
               min="0"
               max="9"
             />
           </div>
+
 
           <Input
             type="number"
@@ -453,12 +490,16 @@ export default function PrescriptionOverlayForm() {
             placeholder="Days"
           />
 
-          <Input
-            value={medicine.instructions || ""}
-            onChange={(e) => updateMedicine(index, "instructions", e.target.value)}
-            className="flex-1 h-8 text-xs border-2 border-blue-300 bg-white/95 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all"
-            placeholder="Instructions"
-          />
+          <div className="w-full">
+            <Input
+              value={medicine.instructions || ""}
+              onChange={(e) =>
+                updateMedicine(index, "instructions", e.target.value)
+              }
+              className="w-full h-8 text-xs border-2 border-blue-300 bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all"
+              placeholder="Instructions"
+            />
+          </div>
 
           {medicines.length > 1 && (
             <Button onClick={() => removeMedicine(index)} size="sm" variant="destructive" className="h-8 w-8 p-0 hover:bg-red-600 transition-colors">
@@ -514,33 +555,47 @@ export default function PrescriptionOverlayForm() {
             <div
               className="relative mx-auto"
               style={{
-                backgroundImage: "url('/prescription-form-bg.png')",
+                backgroundImage: "url('/prescription-bg.jpg')",
                 backgroundSize: "100% 100%",
                 backgroundRepeat: "no-repeat",
                 width: "794px",
                 height: "1123px",
               }}
             >
+
+
+              {/* Prescription Form */}
               <div className="absolute inset-0">
                 {/* Row 1: Ref No., Date, No of Visit */}
                 <Input
                   value={prescription.ref_no || ""}
                   onChange={(e) => updatePrescriptionField("ref_no", e.target.value)}
                   className="absolute border-2 border-blue-300 bg-white/95 text-sm p-2 h-8 rounded-md shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all"
-                  style={{ top: "283px", left: "98px", width: "220px" }}
+                  style={{
+                    top: '243px',
+                    left: '76px',
+                    width: '149px'
+                  }}
                   placeholder="Ref No."
                 />
                 <Input
                   value={currentDate}
                   className="absolute border-2 border-gray-300 bg-gray-50/95 text-sm p-2 h-8 rounded-md"
-                  style={{ top: "283px", left: "430px", width: "140px" }}
+                  style={{ top: "243px", left: "422px", width: "119px" }}
+                  readOnly
+                />
+
+                <Input
+                  value={currentTime}
+                  className="absolute border-2 border-gray-300 bg-gray-50/95 text-sm p-2 h-8 rounded-md"
+                  style={{ top: "243px", left: "279px", width: "100px" }}
                   readOnly
                 />
                 <Input
                   value={prescription.visit_no?.toString() || "1"}
                   onChange={(e) => updatePrescriptionField("visit_no", Number.parseInt(e.target.value) || 1)}
                   className="absolute border-2 border-blue-300 bg-white/95 text-sm p-2 h-8 rounded-md text-center shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all"
-                  style={{ top: "275px", left: "620px", width: "60px" }}
+                  style={{ top: "243px", left: "640px", width: "60px" }}
                   placeholder="No of Visit"
                 />
                 {/* More fields to be aligned in the next step */}
@@ -549,7 +604,7 @@ export default function PrescriptionOverlayForm() {
                   value={prescription.patient_name}
                   onChange={(e) => updatePrescriptionField("patient_name", e.target.value)}
                   className="absolute border-2 border-blue-300 bg-white/95 text-sm p-2 h-8 rounded-md shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all"
-                  style={{ top: "319px", left: "140px", width: "280px" }}
+                  style={{ top: "278px", left: "133px", width: "225px" }}
                   placeholder="Patient Name"
                 />
 
@@ -557,7 +612,7 @@ export default function PrescriptionOverlayForm() {
                   value={relationField}
                   onChange={(e) => setRelationField(e.target.value)}
                   className="absolute border-2 border-blue-300 bg-white/95 text-sm p-2 h-8 rounded-md shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all"
-                  style={{ top: "317px", left: "493px", width: "280px" }}
+                  style={{ top: "278px", left: "473px", width: "280px" }}
                   placeholder="S/o, D/o, W/o"
                 />
 
@@ -566,10 +621,10 @@ export default function PrescriptionOverlayForm() {
                   value={prescription.patient_age?.toString() || ""}
                   onChange={(e) => updatePrescriptionField("patient_age", Number.parseInt(e.target.value) || undefined)}
                   className="absolute border-none bg-transparent text-sm p-2 h-8 focus:ring-0 focus:outline-none"
-                  style={{ top: "353px", left: "87px", width: "60px" }}
+                  style={{ top: "314px", left: "87px", width: "43px" }}
                   placeholder="Age"
                 />
-                <div className="absolute" style={{ top: "352px", left: "220px", width: "85px" }}>
+                <div className="absolute" style={{ top: "313px", left: "220px", width: "85px" }}>
                   <Select
                     value={prescription.patient_sex || ""}
                     onValueChange={(value) => updatePrescriptionField("patient_sex", value)}
@@ -587,14 +642,14 @@ export default function PrescriptionOverlayForm() {
                   value={prescription.patient_weight?.toString() || ""}
                   onChange={(e) => updatePrescriptionField("patient_weight", Number.parseFloat(e.target.value) || undefined)}
                   className="absolute border-none bg-transparent text-sm p-2 h-8 focus:ring-0 focus:outline-none"
-                  style={{ top: "351px", left: "423px", width: "60px" }}
+                  style={{ top: "314px", left: "415px", width: "60px" }}
                   placeholder="Weight"
                 />
                 <Input
                   value={prescription.patient_contact || ""}
                   onChange={(e) => updatePrescriptionField("patient_contact", e.target.value)}
                   className="absolute border-none bg-transparent text-sm p-2 h-8 focus:ring-0 focus:outline-none"
-                  style={{ top: "355px", left: "593px", width: "170px" }}
+                  style={{ top: "316px", left: "571px", width: "170px" }}
                   placeholder="Contact No"
                 />
                 {/* Row 4: Address, Allergies */}
@@ -602,14 +657,14 @@ export default function PrescriptionOverlayForm() {
                   value={prescription.patient_address || ""}
                   onChange={(e) => updatePrescriptionField("patient_address", e.target.value)}
                   className="absolute border-none bg-transparent text-sm p-2 h-8 focus:ring-0 focus:outline-none"
-                  style={{ top: "390px", left: "98px", width: "320px" }}
+                  style={{ top: "344px", left: "95px", width: "315px" }}
                   placeholder="Address"
                 />
                 <Input
                   value={prescription.allergies || ""}
                   onChange={(e) => updatePrescriptionField("allergies", e.target.value)}
                   className="absolute border-none bg-transparent text-sm p-2 h-8 focus:ring-0 focus:outline-none"
-                  style={{ top: "390px", left: "480px", width: "270px" }}
+                  style={{ top: "348px", left: "480px", width: "270px" }}
                   placeholder="Allergies"
                 />
                 {/* Row 5: Symptoms, Findings */}
@@ -617,7 +672,7 @@ export default function PrescriptionOverlayForm() {
                   value={prescription.symptoms || ""}
                   onChange={(e) => updatePrescriptionField("symptoms", e.target.value)}
                   className="absolute border-none bg-transparent text-sm p-2 rounded-md resize-none focus:ring-0 focus:outline-none"
-                  style={{ top: "419px", left: "116px", width: "320px", height: "32px" }}
+                  style={{ top: "376px", left: "111px", width: "320px", height: "32px" }}
                   placeholder="Symptoms"
                   rows={2}
                 />
@@ -625,7 +680,7 @@ export default function PrescriptionOverlayForm() {
                   value={prescription.findings || ""}
                   onChange={(e) => updatePrescriptionField("findings", e.target.value)}
                   className="absolute border-none bg-transparent text-sm p-2 rounded-md resize-none focus:ring-0 focus:outline-none"
-                  style={{ top: "421px", left: "493px", width: "270px", height: "32px" }}
+                  style={{ top: "377px", left: "464px", width: "270px", height: "32px" }}
                   placeholder="Findings"
                   rows={2}
                 />
@@ -634,7 +689,7 @@ export default function PrescriptionOverlayForm() {
                   value={prescription.diagnosis || ""}
                   onChange={(e) => updatePrescriptionField("diagnosis", e.target.value)}
                   className="absolute border-none bg-transparent text-sm p-2 rounded-md resize-none focus:ring-0 focus:outline-none"
-                  style={{ top: "455px", left: "200px", width: "500px", height: "32px" }}
+                  style={{ top: "410px", left: "200px", width: "500px", height: "32px" }}
                   placeholder="Provisional/Diagnosis"
                   rows={2}
                 />
@@ -650,9 +705,9 @@ export default function PrescriptionOverlayForm() {
                       style={{ maxWidth: "180px", margin: "24px auto 8px auto", display: "block", opacity: 0.7 }}
                     /> */}
                     <div className="flex justify-center">
-                      <Button 
+                      <Button
                         onClick={addMedicine}
-                        size="sm" 
+                        size="sm"
                         className="h-10 bg-blue-600 hover:bg-blue-700 shadow-md hover:shadow-lg transition-all duration-200 font-medium"
                       >
                         <Plus className="w-4 h-4 mr-2" />
@@ -861,7 +916,7 @@ export default function PrescriptionOverlayForm() {
               ))}
               <Button onClick={addMedicine} className="w-full">
                 <Plus className="w-4 h-4 mr-2" />
-                Add Medicine
+                Add Medicine   1112
               </Button>
             </div>
 
