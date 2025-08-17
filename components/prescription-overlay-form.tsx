@@ -375,7 +375,7 @@ export default function PrescriptionOverlayForm() {
     </div>
     <script>
       setTimeout(function() {
-        // window.print();
+        window.print();
       }, 1000);
     </script>
   </body>
