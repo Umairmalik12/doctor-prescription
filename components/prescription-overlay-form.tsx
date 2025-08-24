@@ -2,14 +2,24 @@
 
 import { useState, useCallback, useMemo, useEffect } from "react"
 import { Button } from "@/components/ui/button"
+import { Card, CardContent } from "@/components/ui/card"
+import { Checkbox } from "@/components/ui/checkbox"
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command"
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
+import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
+import { Label } from "@/components/ui/label"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Separator } from "@/components/ui/separator"
+import { Textarea } from "@/components/ui/textarea"
 import { Save, Printer, Plus, Trash2, List } from "lucide-react"
 import { supabase, type Prescription, type PrescriptionMedicine } from "@/lib/supabase"
 import { COMMON_MEDICINES, MEDICINE_TYPES } from "@/lib/medicines-data"
 import { useToast } from "@/hooks/use-toast"
 import PrescriptionListModal from "./prescription-list-modal"
+import { cn } from "@/lib/utils"
+import { Check, ChevronsUpDown } from "lucide-react"
 
 interface MedicineFormData extends Omit<PrescriptionMedicine, "id" | "prescription_id"> { }
 
@@ -408,21 +418,64 @@ export default function PrescriptionOverlayForm() {
           {index > 0 && <hr className="w-full border-blue-100 my-2" />}
           <span className="text-sm font-bold w-6 text-blue-800 bg-blue-50 px-2 py-1 rounded">{index + 1}.</span>
 
-          <Select
-            value={medicine.medicine_name}
-            onValueChange={(value) => updateMedicine(index, "medicine_name", value)}
-          >
-            <SelectTrigger className="w-32 h-8 text-xs border-2 border-blue-300 bg-white/95 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all">
-              <SelectValue placeholder="Medicine" />
-            </SelectTrigger>
-            <SelectContent>
-              {COMMON_MEDICINES.map((med) => (
-                <SelectItem key={med} value={med}>
-                  {med}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <div className="relative">
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  role="combobox"
+                  className={cn(
+                    "w-32 h-8 text-xs border-2 transition-all justify-between",
+                    !COMMON_MEDICINES.includes(medicine.medicine_name || '') && medicine.medicine_name
+                      ? "border-green-400 bg-green-50 text-green-800 focus:border-green-500 focus:ring-2 focus:ring-green-200"
+                      : "border-blue-300 bg-white/95 focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+                  )}
+                >
+                  {medicine.medicine_name || "Medicine"}
+                  <ChevronsUpDown className="ml-2 h-3 w-3 shrink-0 opacity-50" />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-64 p-0">
+                <Command>
+                  <CommandInput 
+                    placeholder="Search medicine..." 
+                    className="h-8 text-xs"
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' && e.currentTarget.value) {
+                        updateMedicine(index, "medicine_name", e.currentTarget.value);
+                        e.preventDefault();
+                      }
+                    }}
+                  />
+                  <CommandList>
+                    <CommandEmpty>
+                      <div className="p-2 text-xs text-muted-foreground">
+                        Press Enter to add custom medicine
+                      </div>
+                    </CommandEmpty>
+                    <CommandGroup>
+                      {COMMON_MEDICINES.map((med) => (
+                        <CommandItem
+                          key={med}
+                          value={med}
+                          onSelect={(value) => updateMedicine(index, "medicine_name", value)}
+                          className="text-xs"
+                        >
+                          <Check
+                            className={cn(
+                              "mr-2 h-3 w-3",
+                              medicine.medicine_name === med ? "opacity-100" : "opacity-0"
+                            )}
+                          />
+                          {med}
+                        </CommandItem>
+                      ))}
+                    </CommandGroup>
+                  </CommandList>
+                </Command>
+              </PopoverContent>
+            </Popover>
+          </div>
 
           <Input
             value={medicine.dosage_amount}

@@ -367,7 +367,7 @@ export default function PrescriptionForm() {
                     <SelectContent>
                       {COMMON_MEDICINES.map((med) => (
                         <SelectItem key={med} value={med}>
-                          {med}
+                          {med} dsfdsf
                         </SelectItem>
                       ))}
                     </SelectContent>
