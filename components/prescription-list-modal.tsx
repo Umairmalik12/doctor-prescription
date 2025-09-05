@@ -9,9 +9,10 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { List, Grid, Eye, Printer, Search, Calendar, User, FileText, Pill } from "lucide-react"
+import { List, Grid, Eye, Printer, Search, Calendar, User, FileText, Pill, Edit } from "lucide-react"
 import { supabase, type Prescription, type PrescriptionMedicine } from "@/lib/supabase"
 import { useToast } from "@/hooks/use-toast"
+import { useRouter } from "next/navigation"
 
 interface PrescriptionWithMedicines extends Prescription {
   medicines: PrescriptionMedicine[]
@@ -23,6 +24,7 @@ interface PrescriptionListModalProps {
 
 export default function PrescriptionListModal({ trigger }: PrescriptionListModalProps) {
   const { toast } = useToast()
+  const router = useRouter()
   const [prescriptions, setPrescriptions] = useState<PrescriptionWithMedicines[]>([])
   const [filteredPrescriptions, setFilteredPrescriptions] = useState<PrescriptionWithMedicines[]>([])
   const [selectedPrescription, setSelectedPrescription] = useState<PrescriptionWithMedicines | null>(null)
@@ -114,6 +116,10 @@ export default function PrescriptionListModal({ trigger }: PrescriptionListModal
     window.open(`/prescription/print/${prescriptionId}`, "_blank")
   }
 
+  const handleEdit = (prescriptionId: string) => {
+    router.push(`/prescription/edit/${prescriptionId}`)
+  }
+
   const PrescriptionCard = ({ prescription }: { prescription: PrescriptionWithMedicines }) => (
     <Card className="hover:shadow-md transition-shadow">
       <CardHeader className="pb-3">
@@ -162,6 +168,10 @@ export default function PrescriptionListModal({ trigger }: PrescriptionListModal
             <Eye className="w-3 h-3 mr-1" />
             View Details
           </Button>
+          <Button size="sm" variant="outline" onClick={() => handleEdit(prescription.id!)}>
+            <Edit className="w-3 h-3 mr-1" />
+            Edit
+          </Button>
           <Button size="sm" variant="outline" onClick={() => handlePrint(prescription.id!)}>
             <Printer className="w-3 h-3 mr-1" />
             Print
@@ -209,6 +219,10 @@ export default function PrescriptionListModal({ trigger }: PrescriptionListModal
           <Button size="sm" onClick={() => handleViewDetails(prescription)}>
             <Eye className="w-3 h-3 mr-1" />
             View
+          </Button>
+          <Button size="sm" variant="outline" onClick={() => handleEdit(prescription.id!)}>
+            <Edit className="w-3 h-3 mr-1" />
+            Edit
           </Button>
           <Button size="sm" variant="outline" onClick={() => handlePrint(prescription.id!)}>
             <Printer className="w-3 h-3 mr-1" />
@@ -441,6 +455,10 @@ export default function PrescriptionListModal({ trigger }: PrescriptionListModal
               <div className="flex justify-end gap-2 pt-4 border-t">
                 <Button variant="outline" onClick={() => setDetailsOpen(false)}>
                   Close
+                </Button>
+                <Button variant="outline" onClick={() => handleEdit(selectedPrescription.id!)}>
+                  <Edit className="w-4 h-4 mr-2" />
+                  Edit Prescription
                 </Button>
                 <Button onClick={() => handlePrint(selectedPrescription.id!)}>
                   <Printer className="w-4 h-4 mr-2" />
