@@ -62,10 +62,76 @@ export default function PrescriptionOverlayForm() {
   const [currentTime, setCurrentTime] = useState("")
 
   useEffect(() => {
+     console.log("useEffect running...")
+    
+    const stored = localStorage.getItem("prescription")
+    if (stored) {
+      try {
+        console.log("Found stored prescription:", stored)
+        const parsed = JSON.parse(stored)
+
+        setPrescription({
+          patient_name: parsed.patient_name || "",
+          patient_age: parsed.patient_age,
+          patient_sex: parsed.patient_sex || "",
+          patient_weight: parsed.patient_weight,
+          patient_contact: parsed.patient_contact || "",
+          patient_address: parsed.patient_address || "",
+          allergies: parsed.allergies || "",
+          symptoms: parsed.symptoms || "",
+          findings: parsed.findings || "",
+          diagnosis: parsed.diagnosis || "",
+          ref_no: parsed.ref_no || "",
+          visit_no: parsed.visit_no || 1,
+        })
+
+        if (parsed.medicines && Array.isArray(parsed.medicines) && parsed.medicines.length > 0) {
+          setMedicines(parsed.medicines)
+        }
+
+        localStorage.removeItem("prescription")
+      } catch (err) {
+        console.error("Error parsing stored prescription:", err)
+        localStorage.removeItem("prescription")
+      }
+    }
     setCurrentDate(new Date().toLocaleDateString())
   }, [])
 
   useEffect(() => {
+     console.log("useEffect running...")
+    
+    const stored = localStorage.getItem("prescription")
+    if (stored) {
+      try {
+        console.log("Found stored prescription:", stored)
+        const parsed = JSON.parse(stored)
+
+        setPrescription({
+          patient_name: parsed.patient_name || "",
+          patient_age: parsed.patient_age,
+          patient_sex: parsed.patient_sex || "",
+          patient_weight: parsed.patient_weight,
+          patient_contact: parsed.patient_contact || "",
+          patient_address: parsed.patient_address || "",
+          allergies: parsed.allergies || "",
+          symptoms: parsed.symptoms || "",
+          findings: parsed.findings || "",
+          diagnosis: parsed.diagnosis || "",
+          ref_no: parsed.ref_no || "",
+          visit_no: parsed.visit_no || 1,
+        })
+
+        if (parsed.medicines && Array.isArray(parsed.medicines) && parsed.medicines.length > 0) {
+          setMedicines(parsed.medicines)
+        }
+
+        localStorage.removeItem("prescription")
+      } catch (err) {
+        console.error("Error parsing stored prescription:", err)
+        localStorage.removeItem("prescription")
+      }
+    }
     // set date once
     setCurrentDate(new Date().toLocaleDateString())
 

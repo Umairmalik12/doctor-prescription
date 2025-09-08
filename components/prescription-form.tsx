@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState, useRef } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -15,6 +15,7 @@ import { useToast } from "@/hooks/use-toast"
 interface MedicineFormData extends Omit<PrescriptionMedicine, "id" | "prescription_id"> {}
 
 export default function PrescriptionForm() {
+  console.log("PrescriptionForm rendered") 
   const { toast } = useToast()
   const [prescription, setPrescription] = useState<Prescription>({
     patient_name: "",
@@ -47,6 +48,11 @@ export default function PrescriptionForm() {
   const [isLoading, setIsLoading] = useState(false)
   const [savedPrescriptionId, setSavedPrescriptionId] = useState<string | null>(null)
 
+  useEffect(() => {
+   
+  }, [])
+
+
   const addMedicine = () => {
     setMedicines([
       ...medicines,
@@ -54,13 +60,58 @@ export default function PrescriptionForm() {
         medicine_name: "",
         medicine_type: "tablet",
         dosage_amount: "",
-        morning_dose: 0,
+        morning_dose: 1,
         afternoon_dose: 0,
-        evening_dose: 0,
-        duration_days: undefined,
+        evening_dose: 1,
+        duration_days: 7,
         instructions: "",
       },
     ])
+  }
+
+  const loadSampleData = () => {
+    setPrescription({
+      patient_name: "Ahmed Ali",
+      patient_age: 35,
+      patient_sex: "Male",
+      patient_weight: 70,
+      patient_contact: "+92-300-1234567",
+      patient_address: "123 Main Street, Karachi, Pakistan",
+      allergies: "None known",
+      symptoms: "Fever, headache, body aches",
+      findings: "Temperature 101°F, mild dehydration",
+      diagnosis: "Viral fever",
+      ref_no: "REF-001",
+      visit_no: 1,
+    })
+
+    setMedicines([
+      {
+        medicine_name: "Paracetamol",
+        medicine_type: "tablet",
+        dosage_amount: "500mg",
+        morning_dose: 1,
+        afternoon_dose: 0,
+        evening_dose: 1,
+        duration_days: 5,
+        instructions: "Take after meals",
+      },
+      {
+        medicine_name: "Ibuprofen",
+        medicine_type: "tablet",
+        dosage_amount: "400mg",
+        morning_dose: 1,
+        afternoon_dose: 0,
+        evening_dose: 0,
+        duration_days: 3,
+        instructions: "Take with water",
+      },
+    ])
+
+    toast({
+      title: "Sample Data Loaded",
+      description: "Sample prescription data has been loaded for testing.",
+    })
   }
 
   const removeMedicine = (index: number) => {
@@ -147,7 +198,10 @@ export default function PrescriptionForm() {
 
   const printPrescription = () => {
     if (savedPrescriptionId) {
-        window.open(`/prescription/print/${savedPrescriptionId}? patient_name=${prescription.patient_name} &patient_age=${prescription.patient_age} &patient_sex=${prescription.patient_sex} &patient_weight=${prescription.patient_weight} &patient_contact=${prescription.patient_contact} &patient_address=${prescription.patient_address} &allergies=${prescription.allergies} &symptoms=${prescription.symptoms} &findings=${prescription.findings} &diagnosis=${prescription.diagnosis} &medicines=${medicines}`, "_blank")
+      window.open(
+        `/prescription/print/${savedPrescriptionId}?patient_name=${prescription.patient_name}&patient_age=${prescription.patient_age}&patient_sex=${prescription.patient_sex}&patient_weight=${prescription.patient_weight}&patient_contact=${prescription.patient_contact}&patient_address=${prescription.patient_address}&allergies=${prescription.allergies}&symptoms=${prescription.symptoms}&findings=${prescription.findings}&diagnosis=${prescription.diagnosis}&medicines=${JSON.stringify(medicines)}`,
+        "_blank",
+      )
     } else {
       toast({
         title: "Save Required",
@@ -367,7 +421,7 @@ export default function PrescriptionForm() {
                     <SelectContent>
                       {COMMON_MEDICINES.map((med) => (
                         <SelectItem key={med} value={med}>
-                          {med} dsfdsf
+                          {med}
                         </SelectItem>
                       ))}
                     </SelectContent>

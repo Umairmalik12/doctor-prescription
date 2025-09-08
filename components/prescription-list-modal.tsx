@@ -12,6 +12,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { List, Grid, Eye, Printer, Search, Calendar, User, FileText, Pill } from "lucide-react"
 import { supabase, type Prescription, type PrescriptionMedicine } from "@/lib/supabase"
 import { useToast } from "@/hooks/use-toast"
+import PrescriptionOverlayForm from "./prescription-overlay-form"
 
 interface PrescriptionWithMedicines extends Prescription {
   medicines: PrescriptionMedicine[]
@@ -110,9 +111,11 @@ export default function PrescriptionListModal({ trigger }: PrescriptionListModal
     setDetailsOpen(true)
   }
 
-  const handlePrint = (prescriptionId: string) => {
-    window.open(`/prescription/print/${prescriptionId}`, "_blank")
-  }
+const handlePrint = (prescription: PrescriptionWithMedicines) => {
+  localStorage.setItem("prescription", JSON.stringify(prescription))
+  window.open("/", "_blank")
+}
+
 
   const PrescriptionCard = ({ prescription }: { prescription: PrescriptionWithMedicines }) => (
     <Card className="hover:shadow-md transition-shadow">
@@ -162,9 +165,10 @@ export default function PrescriptionListModal({ trigger }: PrescriptionListModal
             <Eye className="w-3 h-3 mr-1" />
             View Details
           </Button>
-          <Button size="sm" variant="outline" onClick={() => handlePrint(prescription.id!)}>
+ 
+          <Button size="sm" variant="outline" onClick={() => handlePrint(prescription)}>
             <Printer className="w-3 h-3 mr-1" />
-            Print
+            Dr. Tanveer ul Haq Prescription
           </Button>
         </div>
       </CardContent>
@@ -210,9 +214,10 @@ export default function PrescriptionListModal({ trigger }: PrescriptionListModal
             <Eye className="w-3 h-3 mr-1" />
             View
           </Button>
-          <Button size="sm" variant="outline" onClick={() => handlePrint(prescription.id!)}>
+        
+          <Button size="sm" variant="outline" onClick={() => handlePrint(prescription)}>
             <Printer className="w-3 h-3 mr-1" />
-            Print
+            Dr. Tanveer ul Haq Prescription
           </Button>
         </div>
       </div>
@@ -442,9 +447,9 @@ export default function PrescriptionListModal({ trigger }: PrescriptionListModal
                 <Button variant="outline" onClick={() => setDetailsOpen(false)}>
                   Close
                 </Button>
-                <Button onClick={() => handlePrint(selectedPrescription.id!)}>
+                <Button onClick={() => handlePrint(selectedPrescription)}>
                   <Printer className="w-4 h-4 mr-2" />
-                  Print Prescription
+                   Dr. Tanveer ul Haq Prescription
                 </Button>
               </div>
             </div>
