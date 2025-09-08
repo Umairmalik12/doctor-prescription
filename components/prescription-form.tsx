@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -46,6 +46,18 @@ export default function PrescriptionForm() {
 
   const [isLoading, setIsLoading] = useState(false)
   const [savedPrescriptionId, setSavedPrescriptionId] = useState<string | null>(null)
+
+  // Persist the latest saved data so the print page can retrieve it
+  useEffect(() => {
+    if (savedPrescriptionId) {
+      try {
+        const payload = { prescription, medicines }
+        sessionStorage.setItem(`prescription:${savedPrescriptionId}`, JSON.stringify(payload))
+      } catch (err) {
+        // no-op if storage is unavailable
+      }
+    }
+  }, [savedPrescriptionId, prescription, medicines])
 
   const addMedicine = () => {
     setMedicines([
@@ -147,7 +159,7 @@ export default function PrescriptionForm() {
 
   const printPrescription = () => {
     if (savedPrescriptionId) {
-        window.open(`/prescription/print/${savedPrescriptionId}? patient_name=${prescription.patient_name} &patient_age=${prescription.patient_age} &patient_sex=${prescription.patient_sex} &patient_weight=${prescription.patient_weight} &patient_contact=${prescription.patient_contact} &patient_address=${prescription.patient_address} &allergies=${prescription.allergies} &symptoms=${prescription.symptoms} &findings=${prescription.findings} &diagnosis=${prescription.diagnosis} &medicines=${medicines}`, "_blank")
+      window.open(`/prescription/print/${savedPrescriptionId}`, "_blank")
     } else {
       toast({
         title: "Save Required",
@@ -367,7 +379,7 @@ export default function PrescriptionForm() {
                     <SelectContent>
                       {COMMON_MEDICINES.map((med) => (
                         <SelectItem key={med} value={med}>
-                          {med} dsfdsf
+                          {med}
                         </SelectItem>
                       ))}
                     </SelectContent>
