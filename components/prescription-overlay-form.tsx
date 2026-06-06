@@ -21,7 +21,10 @@ import PrescriptionListModal from "./prescription-list-modal"
 import { cn } from "@/lib/utils"
 import { Check, ChevronsUpDown } from "lucide-react"
 
-interface MedicineFormData extends Omit<PrescriptionMedicine, "id" | "prescription_id"> { }
+interface MedicineFormData extends PrescriptionMedicine { }
+
+const getMedicineIds = (medicines: PrescriptionMedicine[]) =>
+  medicines.map((medicine) => medicine.id).filter((id): id is string => Boolean(id))
 
 export default function PrescriptionOverlayForm() {
   const { toast } = useToast()
@@ -57,13 +60,12 @@ export default function PrescriptionOverlayForm() {
   const [relationField, setRelationField] = useState("")
   const [isLoading, setIsLoading] = useState(false)
   const [savedPrescriptionId, setSavedPrescriptionId] = useState<string | null>(null)
+  const [loadedMedicineIds, setLoadedMedicineIds] = useState<string[]>([])
   // Hydration-safe date
   const [currentDate, setCurrentDate] = useState("")
   const [currentTime, setCurrentTime] = useState("")
 
   useEffect(() => {
-     console.log("useEffect running...")
-    
     const stored = localStorage.getItem("prescription")
     if (stored) {
       try {
@@ -71,6 +73,7 @@ export default function PrescriptionOverlayForm() {
         const parsed = JSON.parse(stored)
 
         setPrescription({
+          id: parsed.id,
           patient_name: parsed.patient_name || "",
           patient_age: parsed.patient_age,
           patient_sex: parsed.patient_sex || "",
@@ -83,47 +86,15 @@ export default function PrescriptionOverlayForm() {
           diagnosis: parsed.diagnosis || "",
           ref_no: parsed.ref_no || "",
           visit_no: parsed.visit_no || 1,
+          visit_date: parsed.visit_date,
+          created_at: parsed.created_at,
+          updated_at: parsed.updated_at,
         })
+        setSavedPrescriptionId(parsed.id || null)
 
         if (parsed.medicines && Array.isArray(parsed.medicines) && parsed.medicines.length > 0) {
           setMedicines(parsed.medicines)
-        }
-
-        localStorage.removeItem("prescription")
-      } catch (err) {
-        console.error("Error parsing stored prescription:", err)
-        localStorage.removeItem("prescription")
-      }
-    }
-    setCurrentDate(new Date().toLocaleDateString())
-  }, [])
-
-  useEffect(() => {
-     console.log("useEffect running...")
-    
-    const stored = localStorage.getItem("prescription")
-    if (stored) {
-      try {
-        console.log("Found stored prescription:", stored)
-        const parsed = JSON.parse(stored)
-
-        setPrescription({
-          patient_name: parsed.patient_name || "",
-          patient_age: parsed.patient_age,
-          patient_sex: parsed.patient_sex || "",
-          patient_weight: parsed.patient_weight,
-          patient_contact: parsed.patient_contact || "",
-          patient_address: parsed.patient_address || "",
-          allergies: parsed.allergies || "",
-          symptoms: parsed.symptoms || "",
-          findings: parsed.findings || "",
-          diagnosis: parsed.diagnosis || "",
-          ref_no: parsed.ref_no || "",
-          visit_no: parsed.visit_no || 1,
-        })
-
-        if (parsed.medicines && Array.isArray(parsed.medicines) && parsed.medicines.length > 0) {
-          setMedicines(parsed.medicines)
+          setLoadedMedicineIds(getMedicineIds(parsed.medicines))
         }
 
         localStorage.removeItem("prescription")
@@ -202,40 +173,104 @@ export default function PrescriptionOverlayForm() {
         visit_date: new Date().toISOString().split("T")[0],
       }
 
-      const { data: savedPrescription, error: prescriptionError } = await supabase
-        .from("prescriptions")
-        .insert([prescriptionData])
-        .select()
-        .single()
+      const existingPrescriptionId = prescription.id || savedPrescriptionId
+      const savedMedicineRows: MedicineFormData[] = []
 
-      if (prescriptionError) throw prescriptionError
+      const saveMedicineRow = async (medicine: MedicineFormData, prescriptionId: string) => {
+        const medicineData = {
+          prescription_id: prescriptionId,
+          medicine_name: medicine.medicine_name.trim(),
+          medicine_type: medicine.medicine_type,
+          dosage_amount: medicine.dosage_amount,
+          morning_dose: medicine.morning_dose,
+          afternoon_dose: medicine.afternoon_dose,
+          evening_dose: medicine.evening_dose,
+          duration_days: medicine.duration_days || null,
+          instructions: medicine.instructions?.trim() || null,
+        }
+
+        if (medicine.id) {
+          const { data, error } = await supabase
+            .from("prescription_medicines")
+            .update(medicineData)
+            .eq("id", medicine.id)
+            .eq("prescription_id", prescriptionId)
+            .select()
+            .single()
+
+          if (error) throw error
+          return data as MedicineFormData
+        }
+
+        const { data, error } = await supabase
+          .from("prescription_medicines")
+          .insert([medicineData])
+          .select()
+          .single()
+
+        if (error) throw error
+        return data as MedicineFormData
+      }
+
+      let savedPrescription: Prescription
+      if (existingPrescriptionId) {
+        const { data, error } = await supabase
+          .from("prescriptions")
+          .update(prescriptionData)
+          .eq("id", existingPrescriptionId)
+          .select()
+          .single()
+
+        if (error) throw error
+        savedPrescription = data
+      } else {
+        const { data, error } = await supabase
+          .from("prescriptions")
+          .insert([prescriptionData])
+          .select()
+          .single()
+
+        if (error) throw error
+        savedPrescription = data
+      }
 
       const validMedicines = medicines.filter((med) => med.medicine_name.trim() !== "")
 
-      if (validMedicines.length > 0) {
-        const medicinesWithPrescriptionId = validMedicines.map((med) => ({
-          prescription_id: savedPrescription.id,
-          medicine_name: med.medicine_name,
-          medicine_type: med.medicine_type,
-          dosage_amount: med.dosage_amount,
-          morning_dose: med.morning_dose,
-          afternoon_dose: med.afternoon_dose,
-          evening_dose: med.evening_dose,
-          duration_days: med.duration_days || null,
-          instructions: med.instructions?.trim() || null,
-        }))
-
-        const { error: medicinesError } = await supabase
-          .from("prescription_medicines")
-          .insert(medicinesWithPrescriptionId)
-
-        if (medicinesError) throw medicinesError
+      if (!savedPrescription.id) {
+        throw new Error("Saved prescription ID is missing")
       }
 
-      setSavedPrescriptionId(savedPrescription.id)
+      const savedPrescriptionIdValue = savedPrescription.id
+
+      if (existingPrescriptionId && loadedMedicineIds.length > 0) {
+        const currentMedicineIds = getMedicineIds(validMedicines)
+        const removedMedicineIds = loadedMedicineIds.filter((id) => !currentMedicineIds.includes(id))
+
+        if (removedMedicineIds.length > 0) {
+          const { error } = await supabase
+            .from("prescription_medicines")
+            .delete()
+            .eq("prescription_id", savedPrescriptionIdValue)
+            .in("id", removedMedicineIds)
+
+          if (error) throw error
+        }
+      }
+
+      for (const medicine of validMedicines) {
+        savedMedicineRows.push(await saveMedicineRow(medicine, savedPrescriptionIdValue))
+      }
+
+      setSavedPrescriptionId(savedPrescriptionIdValue)
+      setPrescription((prev) => ({ ...prev, ...savedPrescription }))
+      setLoadedMedicineIds(getMedicineIds(savedMedicineRows))
+      if (savedMedicineRows.length > 0) {
+        setMedicines(savedMedicineRows)
+      }
+
       toast({
         title: "Success",
-        description: `Prescription saved successfully!`,
+        description: existingPrescriptionId ? "Prescription updated successfully!" : "Prescription saved successfully!",
       })
     } catch (error) {
       console.error("Error saving prescription:", error)
@@ -247,7 +282,7 @@ export default function PrescriptionOverlayForm() {
     } finally {
       setIsLoading(false)
     }
-  }, [prescription, medicines, toast])
+  }, [prescription, savedPrescriptionId, medicines, loadedMedicineIds, toast])
 
   const resetForm = useCallback(() => {
     setPrescription({
@@ -278,6 +313,7 @@ export default function PrescriptionOverlayForm() {
     ])
     setRelationField("")
     setSavedPrescriptionId(null)
+    setLoadedMedicineIds([])
   }, [])
 
   const printCurrentForm = useCallback(() => {
