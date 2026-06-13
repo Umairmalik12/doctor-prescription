@@ -409,23 +409,19 @@ export default function PrescriptionForm() {
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                <div>
+              <div>
                   <Label>Medicine Name</Label>
-                  <Select
+                  <Input
                     value={medicine.medicine_name}
-                    onValueChange={(value) => updateMedicine(index, "medicine_name", value)}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select medicine" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {COMMON_MEDICINES.map((med) => (
-                        <SelectItem key={med} value={med}>
-                          {med}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                    onChange={(e) => updateMedicine(index, "medicine_name", e.target.value)}
+                    placeholder="Type medicine name (or select from list)"
+                    list={`medicines-${index}`}
+                  />
+                  <datalist id={`medicines-${index}`}>
+                    {COMMON_MEDICINES.map((med) => (
+                      <option key={med} value={med} />
+                    ))}
+                  </datalist>
                 </div>
 
                 <div>

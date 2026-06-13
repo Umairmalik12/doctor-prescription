@@ -120,10 +120,10 @@ export default function PrintablePrescription({ prescription, medicines }: Print
         <div className="space-y-4">
           {medicines.map((medicine, index) => (
             <div key={medicine.id || index} className="border-l-2 border-blue-600 pl-4">
-              <div className="font-semibold text-sm">
+              <div className="font-semibold text-base">
                 {index + 1}. {medicine.medicine_name} {medicine.dosage_amount} ({medicine.medicine_type})
               </div>
-              <div className="text-xs text-gray-700 ml-4">
+              <div className="text-sm text-gray-700 ml-4">
                 <div>Dosage: {getDosageText(medicine)}</div>
                 {medicine.duration_days && <div>Duration: {medicine.duration_days} days</div>}
                 {medicine.instructions && <div>Instructions: {medicine.instructions}</div>}
