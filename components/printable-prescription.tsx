@@ -30,8 +30,8 @@ export default function PrintablePrescription({ prescription, medicines }: Print
   }
 
   return (
-    <div
-      className="min-h-screen bg-white p-10 print:p-0"
+      <div
+      className="min-h-screen bg-white p-10 print:p-0 print-scale"
       style={{
         backgroundImage: `url('/prescription-bg.jpeg')`,
         backgroundRepeat: "no-repeat",
@@ -43,6 +43,13 @@ export default function PrintablePrescription({ prescription, medicines }: Print
         @media print {
           body { margin: 0; }
           .no-print { display: none; }
+
+          /* Make printed text readable */
+          body { font-size: 14px; }
+          .print-scale { font-size: 14px; }
+          .print-scale .print-sm { font-size: 12px; }
+          .print-scale .print-xs { font-size: 11px; }
+          .print-scale .print-rx { font-size: 16px; }
         }
         .field-line {
           border-bottom: 1px solid #444;

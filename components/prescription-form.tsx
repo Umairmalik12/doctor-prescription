@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState, useRef } from "react"
+import { useEffect, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -8,15 +8,22 @@ import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Plus, Trash2, Save, Printer } from "lucide-react"
-import { supabase, mockSupabase, isDemoMode, type Prescription, type PrescriptionMedicine } from "@/lib/supabase"
+import {
+  supabase,
+  mockSupabase,
+  isDemoMode,
+  type Prescription,
+  type PrescriptionMedicine,
+} from "@/lib/supabase"
 import { MEDICINE_TYPES, COMMON_MEDICINES, DOSAGE_PATTERNS } from "@/lib/medicines-data"
 import { useToast } from "@/hooks/use-toast"
+import { useMedicineDrafts } from "./use-medicine-drafts"
 
 interface MedicineFormData extends Omit<PrescriptionMedicine, "id" | "prescription_id"> {}
 
 export default function PrescriptionForm() {
-  console.log("PrescriptionForm rendered") 
   const { toast } = useToast()
+
   const [prescription, setPrescription] = useState<Prescription>({
     patient_name: "",
     patient_age: undefined,
@@ -31,6 +38,8 @@ export default function PrescriptionForm() {
     ref_no: "",
     visit_no: 1,
   })
+
+  const { allMedicines: medicineNameOptions, addCustomMedicine } = useMedicineDrafts(COMMON_MEDICINES)
 
   const [medicines, setMedicines] = useState<MedicineFormData[]>([
     {
@@ -49,13 +58,12 @@ export default function PrescriptionForm() {
   const [savedPrescriptionId, setSavedPrescriptionId] = useState<string | null>(null)
 
   useEffect(() => {
-   
+    // noop
   }, [])
 
-
   const addMedicine = () => {
-    setMedicines([
-      ...medicines,
+    setMedicines((prev) => [
+      ...prev,
       {
         medicine_name: "",
         medicine_type: "tablet",
@@ -116,13 +124,18 @@ export default function PrescriptionForm() {
 
   const removeMedicine = (index: number) => {
     if (medicines.length > 1) {
-      setMedicines(medicines.filter((_, i) => i !== index))
+      setMedicines((prev) => prev.filter((_, i) => i !== index))
     }
   }
 
   const updateMedicine = (index: number, field: keyof MedicineFormData, value: any) => {
-    const updated = medicines.map((med, i) => (i === index ? { ...med, [field]: value } : med))
-    setMedicines(updated)
+    setMedicines((prev) => prev.map((med, i) => (i === index ? { ...med, [field]: value } : med)))
+
+    // If user typed a custom medicine name, remember it for dropdown suggestions.
+    if (field === "medicine_name" && typeof value === "string") {
+      const trimmed = value.trim()
+      if (trimmed) addCustomMedicine(trimmed)
+    }
   }
 
   const parseDosagePattern = (pattern: string) => {
@@ -136,23 +149,21 @@ export default function PrescriptionForm() {
       let prescriptionData: Prescription & { id: string }
 
       if (isDemoMode) {
-        // Use mock functions in demo mode
         const result = await mockSupabase.savePrescription(prescription)
         prescriptionData = result.data
 
-        // Mock save medicines
         const medicinesWithPrescriptionId = medicines
           .filter((med) => med.medicine_name.trim() !== "")
           .map((med) => ({
             ...med,
             prescription_id: prescriptionData.id,
+            medicine_type: med.medicine_type || "tablet",
           }))
 
         if (medicinesWithPrescriptionId.length > 0) {
           await mockSupabase.saveMedicines(medicinesWithPrescriptionId)
         }
       } else {
-        // Use real Supabase in production
         const { data: realPrescriptionData, error: prescriptionError } = await supabase
           .from("prescriptions")
           .insert([prescription])
@@ -162,12 +173,12 @@ export default function PrescriptionForm() {
         if (prescriptionError) throw prescriptionError
         prescriptionData = realPrescriptionData
 
-        // Save medicines
         const medicinesWithPrescriptionId = medicines
           .filter((med) => med.medicine_name.trim() !== "")
           .map((med) => ({
             ...med,
             prescription_id: prescriptionData.id,
+            medicine_type: med.medicine_type || "tablet",
           }))
 
         if (medicinesWithPrescriptionId.length > 0) {
@@ -182,7 +193,9 @@ export default function PrescriptionForm() {
       setSavedPrescriptionId(prescriptionData.id)
       toast({
         title: "Success",
-        description: isDemoMode ? "Prescription saved successfully! (Demo Mode)" : "Prescription saved successfully!",
+        description: isDemoMode
+          ? "Prescription saved successfully! (Demo Mode)"
+          : "Prescription saved successfully!",
       })
     } catch (error) {
       console.error("Error saving prescription:", error)
@@ -289,17 +302,12 @@ export default function PrescriptionForm() {
               id="age"
               type="number"
               value={prescription.patient_age || ""}
-              onChange={(e) =>
-                setPrescription({ ...prescription, patient_age: Number.parseInt(e.target.value) || undefined })
-              }
+              onChange={(e) => setPrescription({ ...prescription, patient_age: Number.parseInt(e.target.value) || undefined })}
             />
           </div>
           <div>
             <Label htmlFor="sex">Sex</Label>
-            <Select
-              value={prescription.patient_sex || ""}
-              onValueChange={(value) => setPrescription({ ...prescription, patient_sex: value })}
-            >
+            <Select value={prescription.patient_sex || ""} onValueChange={(value) => setPrescription({ ...prescription, patient_sex: value })}>
               <SelectTrigger>
                 <SelectValue placeholder="Select sex" />
               </SelectTrigger>
@@ -409,16 +417,21 @@ export default function PrescriptionForm() {
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              <div>
+                <div>
                   <Label>Medicine Name</Label>
                   <Input
                     value={medicine.medicine_name}
                     onChange={(e) => updateMedicine(index, "medicine_name", e.target.value)}
-                    placeholder="Type medicine name (or select from list)"
+                    placeholder="Type medicine name"
                     list={`medicines-${index}`}
+                    onBlur={(e) => {
+                      const trimmed = e.target.value.trim()
+                      if (trimmed) addCustomMedicine(trimmed)
+                    }}
                   />
+                  <div className="text-[11px] text-gray-600">Custom typed medicines are added to dropdown automatically.</div>
                   <datalist id={`medicines-${index}`}>
-                    {COMMON_MEDICINES.map((med) => (
+                    {medicineNameOptions.map((med) => (
                       <option key={med} value={med} />
                     ))}
                   </datalist>
@@ -426,10 +439,7 @@ export default function PrescriptionForm() {
 
                 <div>
                   <Label>Type</Label>
-                  <Select
-                    value={medicine.medicine_type}
-                    onValueChange={(value) => updateMedicine(index, "medicine_type", value)}
-                  >
+                  <Select value={medicine.medicine_type} onValueChange={(value) => updateMedicine(index, "medicine_type", value)}>
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
@@ -523,7 +533,7 @@ export default function PrescriptionForm() {
                 <Textarea
                   value={medicine.instructions || ""}
                   onChange={(e) => updateMedicine(index, "instructions", e.target.value)}
-                  placeholder="e.g., Take after meals, Take with water"
+                  placeholder="e.g., Take after meals"
                   rows={2}
                 />
               </div>
@@ -534,3 +544,4 @@ export default function PrescriptionForm() {
     </div>
   )
 }
+
