@@ -17,13 +17,31 @@ export const DOSAGE_UNITS = [
 ]
 
 export const COMMON_MEDICINES = [
+  "ASTEFLOX",
+  "ASTIZOLE",
+  "ASTEGUARD",
+  "CYTOCAL",
+  "CYTOBOL",
+  "OSIS",
+  "CARAPRAZ",
+  "TAWANCE SR",
+  "TAWANCE R",
+  "NEUTICAL",
+  "CEFTIZONE",
+  "GEXIME",
+  "PERBET",
+  "CEFPAK",
+  "BONEHEEL",
   "MIXEL",
   "POLYMALT-F",
   "QSARTEN",
   "MEDITON",
   "CYCIN",
   "DAYFORT",
-  "DYPIME",
+  "DAYPIME",
+  "BELATINE",
+  "ACTIVITA"
+  "KETODYEN"
   "VINZET",
   "MOLAM",
   "CEBECT",
