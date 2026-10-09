@@ -6,7 +6,7 @@ export const MEDICINE_TYPES = [
   { value: "drops", label: "Drops" },
   { value: "cream", label: "Cream" },
   { value: "ointment", label: "Ointment" },
-]
+];
 
 export const DOSAGE_UNITS = [
   { value: "mg", label: "mg" },
@@ -14,16 +14,34 @@ export const DOSAGE_UNITS = [
   { value: "ml", label: "ml" },
   { value: "mcg", label: "mcg" },
   { value: "IU", label: "IU" },
-]
+];
 
 export const COMMON_MEDICINES = [
+  "ASTEFLOX",
+  "ASTIZOLE",
+  "ASTEGUARD",
+  "CYTOCAL",
+  "CYTOBOL",
+  "OSIS",
+  "CARAPRAZ",
+  "TAWANCE SR",
+  "TAWANCE R",
+  "NEUTICAL",
+  "CEFTIZONE",
+  "GEXIME",
+  "PERBET",
+  "CEFPAK",
+  "BONEHEEL",
   "MIXEL",
   "POLYMALT-F",
   "QSARTEN",
   "MEDITON",
   "CYCIN",
   "DAYFORT",
-  "DYPIME",
+  "DAYPIME",
+  "BELATINE",
+  "ACTIVITA",
+  "KETODYEN",
   "VINZET",
   "MOLAM",
   "CEBECT",
@@ -107,9 +125,8 @@ export const COMMON_MEDICINES = [
   "PALMONIVE",
   "CITRALKA",
   "TORALAC",
-  "PROVAS"
-
-]
+  "PROVAS",
+];
 
 export const DOSAGE_PATTERNS = [
   { value: "1+0+0", label: "1+0+0 (Morning only)" },
@@ -121,4 +138,4 @@ export const DOSAGE_PATTERNS = [
   { value: "2+0+2", label: "2+0+2 (2 Morning & 2 Evening)" },
   { value: "1+1+0", label: "1+1+0 (Morning & Afternoon)" },
   { value: "0+1+1", label: "0+1+1 (Afternoon & Evening)" },
-]
+];
